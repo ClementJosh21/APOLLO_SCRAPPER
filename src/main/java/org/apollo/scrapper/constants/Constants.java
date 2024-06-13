@@ -2,6 +2,12 @@ package org.apollo.scrapper.constants;
 
 public class Constants {
 
+  public static final String BANNER =
+      "|  |  |  |~~  |     /~~   /~~\\   |\\  /|  |~~    ~~|~~   /~~\\       /\\    |~~\\  |~~\\   /~~\\   |    |     /~~\\     /~~\\   /~~  |~~\\    /\\    |~~\\  |~~  |~~\\\n"
+          + "|  |  |  |--  |    |     |    |  | \\/ |  |--      |    |    |     /__\\   |__/  |__/  |    |  |    |    |    |    `--.  |     |__/   /__\\   |__/  |--  |__/\n"
+          + " \\/ \\/   |__  |__   \\__   \\__/   |    |  |__      |     \\__/     /    \\  |     |      \\__/   |__  |__   \\__/     \\__/   \\__  |  \\  /    \\  |     |__  |  \\";
+
+  public static final int START_ATTEMPT_COUNT = 0;
   public static final String CONTACT_LIST_URL = "https://api.apollo.io/v1/mixed_people/search";
   public static final String SAVED_LIST_URL = "https://app.apollo.io/api/v1/labels/search";
   public static final String LOGIN_URL = "https://app.apollo.io/api/v1/auth/login";
@@ -55,4 +61,5 @@ public class Constants {
   public static final String QUOTES = "\"";
   public static final String X_API_KEY = "X-Api-Key";
   public static final String API_KEY = "O4s71o31Juq1e4zZBM6oaw";
+  public static final String EXCEPTION_OCCURRED = "Exception occurred: {}";
 }

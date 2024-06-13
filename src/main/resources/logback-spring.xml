@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="appname" source="spring.application.name"/>
+    <springProperty scope="context" name="LOGS" source="logging.file.path"/>
+    <springProperty name="ADS_LOG_APPENDER" source="logging.appender.type"/>
+    <logger name="org" level="INFO"/>
+    <logger name="com" level="INFO"/>
+
+    <appender name="Console"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{40}.%M:%line - %msg%throwable%n
+            </Pattern>
+        </layout>
+    </appender>
+    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <!-- in the absence of the class attribute, it is assumed that the
+             desired discriminator type is
+             ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator> <!-- defaults to type ch.qos.logback.classic.boolex.JaninoEventEvaluator -->
+                <expression>
+                    return mdc.get("stepId")!=null?false:true;
+                </expression>
+            </evaluator>
+            <OnMismatch>NEUTRAL</OnMismatch>
+            <OnMatch>DENY</OnMatch>
+        </filter>
+        <discriminator>
+            <key>logFileName</key>
+            <defaultValue>unknown</defaultValue>
+        </discriminator>
+        <sift>
+            <appender name="FILE-${logFileName}" class="ch.qos.logback.core.FileAppender">
+                <file>${LOGS}/${logFileName}.json</file>
+                <append>false</append>
+                <layout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>{\n"stepId":"%X{stepId}",\n"jobTime":"%date{yyyy-MM-dd
+                        HH:mm:ss.SSS}",\n"type":"%level",\n"message":"%msg"\n},
+                    </pattern>
+                </layout>
+            </appender>
+        </sift>
+    </appender>
+
+    <logger name="org.apollo.scrapper" level="INFO" additivity="false">
+        <appender-ref ref="Console"/>
+    </logger>
+
+    <logger name="org.apollo.scrapper" level="INFO" additivity="false">
+        <appender-ref ref="SIFT"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="Console"/>
+    </root>
+
+</configuration>

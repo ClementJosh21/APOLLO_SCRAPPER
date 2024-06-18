@@ -5,14 +5,12 @@ import static org.apollo.scrapper.constants.Constants.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.*;
+import java.io.Console;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Scanner;
 import lombok.extern.slf4j.Slf4j;
-import org.apollo.scrapper.bean.response.contacts.ApolloContactResponse;
-import org.apollo.scrapper.bean.response.contacts.ApolloContacts;
 import org.apollo.scrapper.bean.response.list.ApolloSavedList;
 import org.apollo.scrapper.bean.response.list.ApolloSavedListResponse;
 import org.apollo.scrapper.exporter.ExportHelper;
@@ -22,45 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 public class ApolloScrappingProcess {
-
-  public void processContacts(ApolloSavedList apolloSavedList) {
-
-    File file = new File(apolloSavedList.getName() + ".csv");
-    final int iterationCount = apolloSavedList.getCachedCount() / 100;
-    try (OutputStream outputStream = new FileOutputStream(file)) {
-      outputStream.write(CONTACTS_CSV_HEADER.getBytes(StandardCharsets.UTF_8));
-      if (iterationCount == 0 && apolloSavedList.getCachedCount() > 0) {
-        processContacts(apolloSavedList, outputStream, 1);
-      } else {
-        for (int i = 1; i <= iterationCount; i++) {
-          processContacts(apolloSavedList, outputStream, i);
-        }
-      }
-    } catch (URISyntaxException | IOException e) {
-      log.error(EXCEPTION_OCCURRED, e.getMessage(), e);
-    }
-  }
-
-  private void processContacts(ApolloSavedList apolloSavedList, OutputStream outputStream, int i2)
-      throws URISyntaxException, IOException {
-    final String requestBody = String.format(REQUEST_FOR_CONTACT_LIST, apolloSavedList.getId(), i2);
-    String json = getResponse(requestBody, CONTACT_LIST_URL);
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    ApolloContactResponse apolloContactResponse =
-        mapper.readValue(json, ApolloContactResponse.class);
-    for (ApolloContacts contact : apolloContactResponse.getContacts()) {
-      outputStream.write(
-          (String.join(
-                      ",",
-                      getQuotedString(contact.getName()),
-                      getQuotedString(contact.getOrganizationName()),
-                      getQuotedString(contact.getTitle()),
-                      getQuotedString(contact.getEmail()))
-                  + "\n")
-              .getBytes(StandardCharsets.UTF_8));
-    }
-  }
 
   private String getResponse(String requestBody, String url) throws URISyntaxException {
     log.info("Request made to apollo with url {}", url);
@@ -74,10 +33,6 @@ public class ApolloScrappingProcess {
         restTemplate.exchange(uri, HttpMethod.POST, requestEntity, String.class);
 
     return result.getBody();
-  }
-
-  private String getQuotedString(String name) {
-    return QUOTES + name + QUOTES;
   }
 
   public ApolloSavedList getListInfo(String listName)
@@ -103,10 +58,12 @@ public class ApolloScrappingProcess {
           "Max attempts for login exceeded. Please try again after sometime.");
     try {
       Scanner scanner = new Scanner(System.in);
+      Console console = System.console();
+
       System.out.println("Enter your username: ");
       String username = scanner.nextLine();
-      System.out.println("Enter your password: ");
-      String password = scanner.nextLine();
+      char[] passwordArray = console.readPassword("Enter your password: ");
+      String password = new String(passwordArray);
       final String requestBody = String.format(REQUEST_FOR_LOGIN, username, password);
       getResponse(requestBody, LOGIN_URL);
     } catch (Exception e) {
@@ -116,21 +73,47 @@ public class ApolloScrappingProcess {
     }
   }
 
-  public void start() throws URISyntaxException, JsonProcessingException {
+  public void start(int attempts) throws URISyntaxException, JsonProcessingException {
+    if (attempts > 3) {
+      log.error("Max attempts for login exceeded. Please try again after sometime.");
+      System.exit(0);
+    }
+
     String listName = getListName();
-    System.out.println(listName);
-    final ApolloSavedList listInfo = getListInfo(listName);
-    ExportHelper exportHelper = new ExportHelper();
-    Exporter exporter = exportHelper.getExporter(exportHelper, "Excel");
-    exporter.export(listInfo);
-    printMenu();
+    log.info("Processing the list '{}'", listName);
+    ApolloSavedList listInfo = getApolloSavedList(listName);
+    if (Objects.toString(listInfo.getId(), "").isEmpty()) {
+      log.error("The requested list is not present. Try entering a valid list name");
+      ++attempts;
+      printMenu(attempts, true);
+    }
+    if (listInfo.getCachedCount() > 0) {
+      ExportHelper exportHelper = new ExportHelper();
+      Exporter exporter = exportHelper.getExporter(exportHelper, EXCEL);
+      exporter.export(listInfo);
+      printMenu(attempts, false);
+    } else {
+      log.error("The requested list is not empty with no records. Try entering a valid list name");
+      ++attempts;
+      printMenu(attempts, true);
+    }
   }
 
-  private void printMenu() throws URISyntaxException, JsonProcessingException {
+  private ApolloSavedList getApolloSavedList(String listName) {
+    ApolloSavedList listInfo = ApolloSavedList.builder().build();
+    try {
+      listInfo = getListInfo(listName);
+    } catch (Exception ignored) {
+    }
+    return listInfo;
+  }
+
+  private void printMenu(int attempts, boolean isError)
+      throws URISyntaxException, JsonProcessingException {
     System.out.println("Export another list? Press 'Y' to proceed and any other key to quit");
     Scanner scanner = new Scanner(System.in);
     String input = scanner.nextLine();
-    if (input.equalsIgnoreCase("y")) start();
+    if (input.equalsIgnoreCase("y")) start(isError ? attempts : START_ATTEMPT_COUNT_LIST);
     else System.exit(0);
   }
 }

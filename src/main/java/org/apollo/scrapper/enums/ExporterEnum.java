@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum ExporterEnum {
   CSV("Comma Separated value", ",", ".csv"),
   TSV("Tab Separated value", "\t", ".tsv"),
-  EXCEL("Excel", "", ".xlsx");
+  EXCEL("Excel", ",", ".xlsx");
 
   private final String format;
   private final String delimiter;

@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -32,15 +33,20 @@ public class CSVExporter implements Exporter {
 
     File file =
         exportHelper.getAndCreateFileWithExtensions(apolloSavedList, exporterEnum.getExtension());
-    final int iterationCount = apolloSavedList.getCachedCount() / 100;
+    final int iterationCount = (int) Math.ceil((double) apolloSavedList.getCachedCount() / 100);
     try (OutputStream outputStream = new FileOutputStream(file)) {
       outputStream.write(CONTACTS_CSV_HEADER.getBytes(StandardCharsets.UTF_8));
-      if (iterationCount == 0 && apolloSavedList.getCachedCount() > 0) {
-        processContacts(apolloSavedList, outputStream, 1);
-      } else {
-        for (int i = 1; i <= iterationCount; i++) {
-          processContacts(apolloSavedList, outputStream, i);
-        }
+      for (int i = 1; i <= iterationCount; i++) {
+        log.info(
+            "Writing {} records into the file {}",
+            exportHelper.getProcessedRecordCount(
+                i, iterationCount, apolloSavedList.getCachedCount()),
+            file.getName());
+        processContacts(apolloSavedList, outputStream, i);
+        log.info(
+            "Processed records: {}",
+            exportHelper.getProcessedRecordCount(
+                i, iterationCount, apolloSavedList.getCachedCount()));
       }
     } catch (URISyntaxException | IOException e) {
       log.error(EXCEPTION_OCCURRED, e.getMessage(), e);
@@ -56,15 +62,16 @@ public class CSVExporter implements Exporter {
     ApolloContactResponse apolloContactResponse =
         mapper.readValue(json, ApolloContactResponse.class);
     for (ApolloContacts contact : apolloContactResponse.getContacts()) {
-      outputStream.write(
-          (String.join(
-                      exporterEnum.getDelimiter(),
-                      exportHelper.getQuotedString(contact.getName()),
-                      exportHelper.getQuotedString(contact.getOrganizationName()),
-                      exportHelper.getQuotedString(contact.getTitle()),
-                      exportHelper.getQuotedString(contact.getEmail()))
-                  + "\n")
-              .getBytes(StandardCharsets.UTF_8));
+      if (!Objects.toString(contact.getEmail(), "").isEmpty())
+        outputStream.write(
+            (String.join(
+                        exporterEnum.getDelimiter(),
+                        exportHelper.getQuotedString(contact.getName()),
+                        exportHelper.getQuotedString(contact.getOrganizationName()),
+                        exportHelper.getQuotedString(contact.getTitle()),
+                        exportHelper.getQuotedString(contact.getEmail()))
+                    + "\n")
+                .getBytes(StandardCharsets.UTF_8));
     }
   }
 }

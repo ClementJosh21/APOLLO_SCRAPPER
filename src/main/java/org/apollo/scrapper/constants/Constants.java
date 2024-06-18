@@ -7,7 +7,8 @@ public class Constants {
           + "|  |  |  |--  |    |     |    |  | \\/ |  |--      |    |    |     /__\\   |__/  |__/  |    |  |    |    |    |    `--.  |     |__/   /__\\   |__/  |--  |__/\n"
           + " \\/ \\/   |__  |__   \\__   \\__/   |    |  |__      |     \\__/     /    \\  |     |      \\__/   |__  |__   \\__/     \\__/   \\__  |  \\  /    \\  |     |__  |  \\";
 
-  public static final int START_ATTEMPT_COUNT = 0;
+  public static final int START_ATTEMPT_COUNT_LOGIN = 0;
+  public static final int START_ATTEMPT_COUNT_LIST = 0;
   public static final String CONTACT_LIST_URL = "https://api.apollo.io/v1/mixed_people/search";
   public static final String SAVED_LIST_URL = "https://app.apollo.io/api/v1/labels/search";
   public static final String LOGIN_URL = "https://app.apollo.io/api/v1/auth/login";
@@ -74,4 +75,13 @@ public class Constants {
   public static final int CELL_TYPE_BLANK = 3;
   public static final int CELL_TYPE_BOOLEAN = 4;
   public static final int CELL_TYPE_ERROR = 5;
+  public static final String EXCEL = "Excel";
+  public static final String TSV = "TSV";
+  public static final String ORIGINAL_SHEET_NAME = "Original";
+  public static final String WITHOUT_DUPLICATES_SHEET_NAME = "Without Duplicates";
+  public static final int COLUMN_COUNT_EXCEL = 4;
+  public static final int NAME_INDEX = 0;
+  public static final int ORGANIZATION_NAME_INDEX = 1;
+  public static final int TITLE_INDEX = 2;
+  public static final int EMAIL_INDEX = 4;
 }

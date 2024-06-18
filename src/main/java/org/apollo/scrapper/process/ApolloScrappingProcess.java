@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Console;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
@@ -20,6 +21,18 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 public class ApolloScrappingProcess {
+
+  public void clearScreen() {
+    try {
+      if (System.getProperty("os.name").contains("Windows")) {
+        new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+      } else {
+        new ProcessBuilder("clear").inheritIO().start().waitFor();
+      }
+    } catch (IOException | InterruptedException ex) {
+      ex.printStackTrace();
+    }
+  }
 
   private String getResponse(String requestBody, String url) throws URISyntaxException {
     log.info("Request made to apollo with url {}", url);
@@ -74,6 +87,7 @@ public class ApolloScrappingProcess {
   }
 
   public void start(int attempts) throws URISyntaxException, JsonProcessingException {
+    clearScreen();
     if (attempts > 3) {
       log.error("Max attempts for login exceeded. Please try again after sometime.");
       System.exit(0);
@@ -110,6 +124,7 @@ public class ApolloScrappingProcess {
 
   private void printMenu(int attempts, boolean isError)
       throws URISyntaxException, JsonProcessingException {
+    clearScreen();
     System.out.println("Export another list? Press 'Y' to proceed and any other key to quit");
     Scanner scanner = new Scanner(System.in);
     String input = scanner.nextLine();

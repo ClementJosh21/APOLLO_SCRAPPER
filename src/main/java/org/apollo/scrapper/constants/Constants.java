@@ -2,10 +2,7 @@ package org.apollo.scrapper.constants;
 
 public class Constants {
 
-  public static final String BANNER =
-      "|  |  |  |~~  |     /~~   /~~\\   |\\  /|  |~~    ~~|~~   /~~\\       /\\    |~~\\  |~~\\   /~~\\   |    |     /~~\\     /~~\\   /~~  |~~\\    /\\    |~~\\  |~~  |~~\\\n"
-          + "|  |  |  |--  |    |     |    |  | \\/ |  |--      |    |    |     /__\\   |__/  |__/  |    |  |    |    |    |    `--.  |     |__/   /__\\   |__/  |--  |__/\n"
-          + " \\/ \\/   |__  |__   \\__   \\__/   |    |  |__      |     \\__/     /    \\  |     |      \\__/   |__  |__   \\__/     \\__/   \\__  |  \\  /    \\  |     |__  |  \\";
+  public static final String BANNER = "Welcome to Apollo.io Scrapper";
 
   public static final int START_ATTEMPT_COUNT_LOGIN = 0;
   public static final int START_ATTEMPT_COUNT_LIST = 0;

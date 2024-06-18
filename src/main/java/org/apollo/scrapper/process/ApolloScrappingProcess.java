@@ -15,6 +15,8 @@ import org.apollo.scrapper.bean.response.contacts.ApolloContactResponse;
 import org.apollo.scrapper.bean.response.contacts.ApolloContacts;
 import org.apollo.scrapper.bean.response.list.ApolloSavedList;
 import org.apollo.scrapper.bean.response.list.ApolloSavedListResponse;
+import org.apollo.scrapper.exporter.ExportHelper;
+import org.apollo.scrapper.exporter.Exporter;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -22,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 public class ApolloScrappingProcess {
 
   public void processContacts(ApolloSavedList apolloSavedList) {
+
     File file = new File(apolloSavedList.getName() + ".csv");
     final int iterationCount = apolloSavedList.getCachedCount() / 100;
     try (OutputStream outputStream = new FileOutputStream(file)) {
@@ -117,7 +120,9 @@ public class ApolloScrappingProcess {
     String listName = getListName();
     System.out.println(listName);
     final ApolloSavedList listInfo = getListInfo(listName);
-    processContacts(listInfo);
+    ExportHelper exportHelper = new ExportHelper();
+    Exporter exporter = exportHelper.getExporter(exportHelper, "Excel");
+    exporter.export(listInfo);
     printMenu();
   }
 

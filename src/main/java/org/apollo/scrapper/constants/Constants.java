@@ -57,9 +57,21 @@ public class Constants {
           + "  \"timezone_offset\": -330,\n"
           + "  \"cacheKey\": 1718267668563\n"
           + "}";
-  public static final String CONTACTS_CSV_HEADER = "Name,Organization Name,Title,Email\n";
+  public static final String NAME = "Name";
+  public static final String TITLE = "Title";
+  public static final String EMAIL = "Email";
+  public static final String ORGANIZATION_NAME = "Organization Name";
+  public static final String CONTACTS_CSV_HEADER =
+      NAME + "," + ORGANIZATION_NAME + "," + TITLE + "," + EMAIL + "\n";
   public static final String QUOTES = "\"";
   public static final String X_API_KEY = "X-Api-Key";
   public static final String API_KEY = "O4s71o31Juq1e4zZBM6oaw";
   public static final String EXCEPTION_OCCURRED = "Exception occurred: {}";
+
+  public static final int CELL_TYPE_NUMERIC = 0;
+  public static final int CELL_TYPE_STRING = 1;
+  public static final int CELL_TYPE_FORMULA = 2;
+  public static final int CELL_TYPE_BLANK = 3;
+  public static final int CELL_TYPE_BOOLEAN = 4;
+  public static final int CELL_TYPE_ERROR = 5;
 }

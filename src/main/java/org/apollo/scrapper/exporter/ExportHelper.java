@@ -59,7 +59,7 @@ public class ExportHelper {
       if (mkdir) log.info("Created directory with path {}", path);
     }
     return new File(
-        path + File.separator + apolloSavedList.getName() + "(" + new Date() + ")" + extension);
+        path + File.separator + apolloSavedList.getName() + "-" + new Date().getTime() + extension);
   }
 
   public int getProcessedRecordCount(int i, int iterationCount, int totalRecordCount) {
